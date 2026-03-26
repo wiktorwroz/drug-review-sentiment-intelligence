@@ -123,7 +123,16 @@ Add `effectiveness` as an additional numeric feature.
 
 ---
 
-### 15. Threshold Calibration (2-Class UI)
+### 15. StratifiedKFold Validation (3-Class Primary)
+- run `StratifiedKFold` for the 3-class setup as the main reliability check
+- additionally compute a 2-class CV view for consistency with Streamlit mapping
+- report fold-by-fold metrics and `mean ± std` to reduce split-specific variance
+
+➡️ provides a stable, transparent estimate of real model performance
+
+---
+
+### 16. Threshold Calibration (2-Class UI)
 - split into train / calibration / test for binary setup
 - tune decision threshold on validation probabilities instead of fixed `0.5`
 - select threshold by ranking `f1_positive`, `balanced_accuracy`, then `precision_positive`
