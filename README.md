@@ -1,140 +1,71 @@
 # 💊 DrugSentiment_POS_NER
 
+This project builds an end-to-end NLP pipeline for drug review analysis: from data preprocessing and multi-class sentiment modeling to a practical Streamlit recommendation interface. It combines transparent 3-class evaluation for analysis quality with a calibrated 2-class decision layer for safer end-user recommendations.
+
+## TL;DR
+- End-to-end NLP project for drug review sentiment analysis on UCI Drug Review data (`id=461`).
+- Main scientific evaluation is **3-class sentiment** (`negative`, `neutral`, `positive`) with `StratifiedKFold`.
+- Product-facing output in Streamlit is **2-class recommendation** (`raczej nie` vs `godny uwagi`).
+- The 2-class decision uses a **calibrated threshold** (not fixed `0.5`) for safer recommendations.
+
+## App Preview
 ![App Screenshot](screenshot.png)
 
-## 📌 Project Pipeline
+## Key Results (Latest Local CV Run)
+| Setup | Accuracy | F1 (weighted) | Balanced Accuracy | MCC | Cohen's Kappa |
+|---|---:|---:|---:|---:|---:|
+| 3-class (primary) | 0.6641 | 0.6750 | 0.5212 | 0.3461 | 0.3439 |
+| 2-class (Streamlit mapping) | 0.7372 | 0.7402 | 0.7131 | 0.4162 | 0.4149 |
 
-### 1. Setup
-Import libraries for NLP, machine learning, and visualization.
+## Business Rule (Safety First)
+- For end users, `neutral` is grouped with `negative` as **`raczej nie`**.
+- This conservative mapping reduces the risk of over-recommending uncertain drugs.
+- Final binary decisions are made from probabilities with a calibrated threshold selected on a validation split.
 
----
+## Modeling Decisions
+- **Data source:** UCI Drug Review dataset (`fetch_ucirepo(id=461)`).
+- **Text features:** TF-IDF (`max_features`, n-grams, stop words), optional POS-filtered variant.
+- **Models compared:** Logistic Regression and Linear SVM.
+- **Imbalance strategy:** SMOTE when available; robust oversampling fallback otherwise.
+- **Evaluation depth:** accuracy, precision/recall/F1, balanced accuracy, MCC, Cohen's kappa, confusion matrix, misclassification analysis.
+- **Reliability step:** `StratifiedKFold` for 3-class primary evaluation (+ 2-class consistency view).
 
-### 2. Data Loading (UCI Drug Review, ID=461)
-Load features and target, then merge into a single DataFrame.
+## Reproducibility
+### 1) Run Notebook
+- Open `DrugSentiment_POS_NER.ipynb`.
+- Run cells top-to-bottom:
+  - preprocessing and feature engineering,
+  - model comparison and diagnostics,
+  - `StratifiedKFold: 3 klasy + 2 klasy`,
+  - `Final metrics snapshot z walidacji krzyżowej`.
 
----
+### 2) Run Streamlit App
+```bash
+python3 -m streamlit run "drug_sentiment_streamlit.py" --server.address 127.0.0.1 --server.port 8502
+```
 
-### 3. Text Construction
-Combine:
-- `benefitsReview`
-- `sideEffectsReview`
-- `commentsReview`
+### 3) Expected Output
+- Drug-level dashboard with:
+  - binary recommendation (`Czy lek godny uwagi?`),
+  - decision confidence,
+  - calibrated threshold,
+  - sentiment distribution and example reviews,
+  - CSV export button.
 
-➡️ into `full_review` to capture full user context.
+## Limitations
+- Dataset class imbalance still affects 3-class difficulty.
+- Reviews are user-generated and noisy (subjective language, sparse context).
+- Current split strategy is random; temporal split is not enforced.
+- No transformer benchmark in this version (CPU-friendly classical ML focus).
 
----
+## Next Improvements
+- Add temporal validation to better approximate real-world deployment.
+- Add lightweight transformer baseline (`DistilBERT`) for comparison.
+- Add monitoring-style drift checks for incoming review text over time.
+- Package the calibration report into a small artifact for model governance.
 
-### 4. Text Cleaning
-- lowercasing
-- removing special characters
-- removing duplicates & empty rows
-
-➡️ reduces noise and improves feature quality
-
----
-
-### 5. Sentiment Labeling
-Convert ratings into:
-- negative
-- neutral
-- positive
-
-➡️ defines a 3-class classification problem
-
----
-
-### 6. NLP Analysis (SpaCy: POS / NER)
-- tokenization
-- POS tagging
-- entity recognition
-
-Create `filtered_review` (e.g. ADJ + NOUN) to test linguistic feature filtering.
-
----
-
-### 7. Train/Test Split + TF-IDF
-- split dataset
-- vectorize text using TF-IDF
-
-➡️ converts text into numerical features
-
----
-
-### 8. Handling Class Imbalance
-- SMOTE (if available)
-- fallback oversampling
-
-➡️ improves learning on minority classes
-
----
-
-### 9. Model Training & Comparison
-Models:
-- Logistic Regression
-- SVM
-
-Feature variants:
-- TF-IDF
-- TF-IDF + resampling
-- TF-IDF + POS + resampling
-
----
-
-### 10. Model Evaluation
-Metrics:
-- accuracy
-- precision / recall / F1
-- balanced accuracy
-- MCC
-- Cohen’s kappa
-
-➡️ deeper evaluation beyond accuracy
-
----
-
-### 11. Model Interpretation
-Extract top TF-IDF features for each class.
-
-➡️ understand what drives predictions
-
----
-
-### 12. Feature Extension
-Add `effectiveness` as an additional numeric feature.
-
-➡️ test impact on performance
-
----
-
-### 13. Advanced Diagnostics
-- confusion matrix
-- per-class metrics
-- most frequent misclassifications
-
-➡️ identify model weaknesses
-
----
-
-### 14. Streamlit Integration
-- stable plotting (`st.pyplot(fig)`)
-- simplified 2-class output for usability
-
-➡️ bridges analysis with real-world application
-
----
-
-### 15. StratifiedKFold Validation (3-Class Primary)
-- run `StratifiedKFold` for the 3-class setup as the main reliability check
-- additionally compute a 2-class CV view for consistency with Streamlit mapping
-- report fold-by-fold metrics and `mean ± std` to reduce split-specific variance
-
-➡️ provides a stable, transparent estimate of real model performance
-
----
-
-### 16. Threshold Calibration (2-Class UI)
-- split into train / calibration / test for binary setup
-- tune decision threshold on validation probabilities instead of fixed `0.5`
-- select threshold by ranking `f1_positive`, `balanced_accuracy`, then `precision_positive`
-
-➡️ improves reliability of final "godny uwagi" vs "raczej nie" decision in Streamlit
+## Project Structure
+- `DrugSentiment_POS_NER.ipynb` - full analysis pipeline and experiments.
+- `drug_sentiment_streamlit.py` - interactive 2-class recommendation app.
+- `screenshot.png` - app screenshot used in README.
+- `README.md` - project documentation.
