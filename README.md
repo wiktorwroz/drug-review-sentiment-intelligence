@@ -120,3 +120,12 @@ Add `effectiveness` as an additional numeric feature.
 - simplified 2-class output for usability
 
 ➡️ bridges analysis with real-world application
+
+---
+
+### 15. Threshold Calibration (2-Class UI)
+- split into train / calibration / test for binary setup
+- tune decision threshold on validation probabilities instead of fixed `0.5`
+- select threshold by ranking `f1_positive`, `balanced_accuracy`, then `precision_positive`
+
+➡️ improves reliability of final "godny uwagi" vs "raczej nie" decision in Streamlit
