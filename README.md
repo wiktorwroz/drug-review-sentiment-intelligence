@@ -2,14 +2,6 @@
 
 ![App Screenshot](screenshot.png)
 
-```text
-project/
-│
-├── app.py
-├── README.md
-├── screenshot.png   👈 tutaj, w głównym katalogu
-```
-
 ## 📌 Project Pipeline
 
 ### 1. Setup
