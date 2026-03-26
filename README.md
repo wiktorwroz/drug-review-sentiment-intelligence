@@ -2,14 +2,11 @@
 
 This project builds an end-to-end NLP pipeline for drug review analysis: from data preprocessing and multi-class sentiment modeling to a practical Streamlit recommendation interface. It combines transparent 3-class evaluation for analysis quality with a calibrated 2-class decision layer for safer end-user recommendations.
 
-## TL;DR
+## Executive Summary
 - End-to-end NLP project for drug review sentiment analysis on UCI Drug Review data (`id=461`).
 - Main scientific evaluation is **3-class sentiment** (`negative`, `neutral`, `positive`) with `StratifiedKFold`.
 - Product-facing output in Streamlit is **2-class recommendation** (`raczej nie` vs `godny uwagi`).
 - The 2-class decision uses a **calibrated threshold** (not fixed `0.5`) for safer recommendations.
-
-## App Preview
-![App Screenshot](screenshot.png)
 
 ## Key Results (Latest Local CV Run)
 | Setup | Accuracy | F1 (weighted) | Balanced Accuracy | MCC | Cohen's Kappa |
